@@ -2,16 +2,17 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
 const router: IRouter = Router();
 
-const PYTHON_SCRIPT = path.join(
-  process.cwd(),
-  "src",
-  "python",
-  "runner.py",
-);
-const OUTPUT_DIR = path.join(process.cwd(), "output");
+// Use import.meta.url so the path works in both dev (src/routes/) and production
+// (dist/index.mjs). In production the bundle lives at artifacts/api-server/dist/index.mjs,
+// so going up one directory lands at artifacts/api-server/ where src/python/ lives.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const API_SERVER_ROOT = path.resolve(__dirname, "..");
+const PYTHON_SCRIPT = path.join(API_SERVER_ROOT, "src", "python", "runner.py");
+const OUTPUT_DIR = path.join(API_SERVER_ROOT, "output");
 
 function runPython(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
