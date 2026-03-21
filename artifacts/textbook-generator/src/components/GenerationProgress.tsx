@@ -48,7 +48,7 @@ export function GenerationProgress({ status, onReset }: GenerationProgressProps)
   return (
     <div className="w-full max-w-xl mx-auto bg-card p-10 rounded-3xl shadow-2xl shadow-black/5 border border-border/50">
       <div className="flex justify-between items-end mb-6">
-        <h3 className="font-display text-2xl font-bold text-foreground">Drafting Manuscript</h3>
+        <h3 className="font-display text-2xl font-bold text-foreground">Drafting Textbook</h3>
         <span className="font-mono text-sm text-muted-foreground font-medium bg-secondary px-3 py-1 rounded-md">
           {completed} / {total} Chapters
         </span>

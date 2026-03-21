@@ -176,7 +176,7 @@ export default function Home() {
                      onClick={handleGenerateBook} 
                      className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium shadow-xl shadow-primary/20 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-primary/30 active:translate-y-0 transition-all flex items-center justify-center gap-3 text-lg"
                    >
-                     Draft Full Manuscript
+                     Draft Full Textbook
                      <ArrowRight className="w-5 h-5" />
                    </button>
                    <button 
