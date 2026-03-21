@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Textbook Generator"
+version = "1.0.0"
+id = "artifacts/textbook-generator"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21882
+
+[services.development]
+run = "pnpm --filter @workspace/textbook-generator run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/textbook-generator", "run", "build" ]
+publicDir = "artifacts/textbook-generator/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21882"
+BASE_PATH = "/"
