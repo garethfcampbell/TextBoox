@@ -467,28 +467,19 @@ li p {{
   text-indent: 0;
 }}
 .box {{
-  background-color: #f8f9fa;
-  border: 1pt solid #e5e5e5;
-  padding: 4mm 5mm;
-  margin: 5mm 0;
+  padding: 0;
+  margin: 0;
 }}
 .box h3 {{
-  margin: 0 0 2mm 0;
-  font-size: 11pt;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 12pt;
   color: #2c3e50;
   border: none;
   text-transform: none;
   page-break-before: avoid;
 }}
-.box ul {{
-  margin: 0;
-  padding-left: 8mm;
-}}
 .box li {{
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  margin: 1mm 0;
   font-style: italic;
   text-indent: 3mm;
 }}
