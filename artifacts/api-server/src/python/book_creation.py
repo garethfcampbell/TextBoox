@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from ebooklib import epub
-from xhtml2pdf import pisa
 from google import genai
 from google.genai import types
 
@@ -977,6 +976,7 @@ CONTENT OF ALL PREVIOUS CHAPTERS:
         print(f"\n📄 Converting to PDF with xhtml2pdf... Output path: {pdf_filepath}")
         
         try:
+            from xhtml2pdf import pisa  # lazy import — avoids slow font-cache build at startup
             # For xhtml2pdf, we need to open the file in binary write mode
             with open(pdf_filepath, "wb") as pdf_file:
                 # Create the PDF

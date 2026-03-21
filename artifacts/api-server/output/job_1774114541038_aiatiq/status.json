@@ -1,1 +1,1 @@
-{"jobId": "job_1774114541038_aiatiq", "status": "running", "progress": "Writing chapter 6 of 10...", "currentChapter": "Quantum Hardware and Physical Implementations", "totalChapters": 10, "completedChapters": 5, "availableFormats": [], "error": ""}
+{"jobId": "job_1774114541038_aiatiq", "status": "completed", "progress": "Book generation complete!", "currentChapter": "", "totalChapters": 10, "completedChapters": 10, "availableFormats": ["html", "pdf", "epub"], "error": ""}
