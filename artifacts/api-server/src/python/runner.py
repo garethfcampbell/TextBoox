@@ -214,9 +214,86 @@ def run_generate_book(job_id: str, topic: str, title: str, filename: str, output
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html)
 
+        # ── Phase 3: EPUB export ──────────────────────────────────────────────
+        update_status("running", "Building EPUB...",
+                      total_chapters=total, completed_chapters=total)
+
+        epub_path = os.path.join(output_dir, f"{base_name}.epub")
+        try:
+            from ebooklib import epub
+
+            book = epub.EpubBook()
+            book.set_identifier(job_id)
+            book.set_title(title)
+            book.set_language("en")
+
+            css = epub.EpubItem(
+                uid="style",
+                file_name="style/main.css",
+                media_type="text/css",
+                content=b"""
+body { font-family: Georgia, serif; line-height: 1.7; margin: 20px; }
+h1 { font-size: 1.8em; border-bottom: 2px solid #333; padding-bottom: 8px; }
+h2 { font-size: 1.4em; margin-top: 2em; color: #1a1a2e; }
+h3 { font-size: 1.1em; margin-top: 1.4em; }
+p  { margin: 0.7em 0; text-align: justify; }
+""",
+            )
+            book.add_item(css)
+
+            spine = ["nav"]
+            toc_entries = []
+
+            for i, (ch, content) in enumerate(chapter_contents.items(), 1):
+                lines = content.split("\n")
+                body_parts = []
+                for line in lines:
+                    s = line.strip()
+                    if s and len(s) < 100 and not s.endswith("."):
+                        body_parts.append(f"<h3>{s}</h3>")
+                    elif s:
+                        body_parts.append(f"<p>{s}</p>")
+
+                ch_html = (
+                    f'<?xml version="1.0" encoding="utf-8"?>'
+                    f'<!DOCTYPE html>'
+                    f'<html xmlns="http://www.w3.org/1999/xhtml">'
+                    f'<head><title>{ch}</title>'
+                    f'<link rel="stylesheet" type="text/css" href="../style/main.css"/>'
+                    f'</head><body>'
+                    f'<h2>Chapter {i}: {ch}</h2>'
+                    + "".join(body_parts)
+                    + "</body></html>"
+                )
+
+                item = epub.EpubHtml(
+                    title=f"Chapter {i}: {ch}",
+                    file_name=f"chapter_{i:02d}.xhtml",
+                    lang="en",
+                )
+                item.content = ch_html.encode("utf-8")
+                item.add_item(css)
+                book.add_item(item)
+                spine.append(item)
+                toc_entries.append(epub.Link(f"chapter_{i:02d}.xhtml", f"Chapter {i}: {ch}", f"ch{i}"))
+
+            book.toc = toc_entries
+            book.add_item(epub.EpubNcx())
+            book.add_item(epub.EpubNav())
+            book.spine = spine
+
+            epub.write_epub(epub_path, book)
+        except Exception as epub_err:
+            print(f"EPUB generation failed (non-fatal): {epub_err}")
+            epub_path = None
+
+        available = ["html"]
+        if epub_path and os.path.exists(epub_path):
+            available.append("epub")
+
         update_status("completed", "Book generation complete!",
                       total_chapters=total, completed_chapters=total,
-                      available_formats=["html"])
+                      available_formats=available)
 
     except Exception as e:
         tb = traceback.format_exc()
