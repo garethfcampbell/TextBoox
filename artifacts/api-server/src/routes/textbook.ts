@@ -157,22 +157,58 @@ router.post("/textbook/generate-book", async (req: Request, res: Response) => {
   );
 
   const safeFilename = filename.endsWith(".html") ? filename : `${filename}.html`;
+  const logFile = path.join(jobDir, "python.log");
 
-  runPython(["generate-book", jobId, topic, title, safeFilename]).catch(
-    (err) => {
-      const errorStatus = {
-        jobId,
-        status: "failed",
-        progress: "",
-        currentChapter: "",
-        totalChapters: 0,
-        completedChapters: 0,
-        availableFormats: [],
-        error: err.message,
-      };
-      fs.writeFileSync(statusFile, JSON.stringify(errorStatus));
+  // Spawn book generation in background — do NOT use runPython() here because
+  // book_creation.py prints entire chapter content to stdout (megabytes), which
+  // would buffer in memory. Instead, pipe stdout/stderr to log files.
+  const existingPythonPath = process.env.PYTHONPATH ?? "";
+  const pythonPath = [PYTHONLIBS, existingPythonPath].filter(Boolean).join(":");
+
+  const proc = spawn(
+    "python3",
+    // Pass jobDir as absolute path so Python never needs to rely on os.getcwd()
+    [PYTHON_SCRIPT, "generate-book", jobId, topic, title, safeFilename, jobDir],
+    {
+      env: { ...process.env, PYTHONPATH: pythonPath },
+      cwd: API_SERVER_ROOT,
+      // Pipe all output so we can capture it without blocking
+      stdio: ["ignore", "pipe", "pipe"],
     },
   );
+
+  const logStream = fs.createWriteStream(logFile, { flags: "a" });
+  proc.stdout?.pipe(logStream);
+  proc.stderr?.pipe(logStream);
+
+  proc.on("error", (err) => {
+    const errorStatus = {
+      jobId, status: "failed", progress: "", currentChapter: "",
+      totalChapters: 0, completedChapters: 0, availableFormats: [],
+      error: `Failed to spawn python3: ${err.message}`,
+    };
+    fs.writeFileSync(statusFile, JSON.stringify(errorStatus));
+    fs.appendFileSync(logFile, `\nSPAWN ERROR: ${err.message}\n`);
+  });
+
+  proc.on("close", (code) => {
+    if (code !== 0) {
+      // Only write failed status if Python didn't already write completed/failed
+      try {
+        const current = JSON.parse(fs.readFileSync(statusFile, "utf-8"));
+        if (current.status === "running" || current.status === "pending") {
+          const errorStatus = {
+            jobId, status: "failed", progress: "", currentChapter: "",
+            totalChapters: 0, completedChapters: 0, availableFormats: [],
+            error: `Python exited with code ${code}. Check python.log for details.`,
+          };
+          fs.writeFileSync(statusFile, JSON.stringify(errorStatus));
+        }
+      } catch {
+        // ignore read errors
+      }
+    }
+  });
 
   res.json({ jobId, message: "Book generation started" });
 });

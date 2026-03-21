@@ -2,14 +2,15 @@
 Wrapper script called by the Express API server to run book generation.
 Usage:
   python runner.py generate-idea <keyword>
-  python runner.py generate-book <job_id> <topic> <title> <filename>
+  python runner.py generate-book <job_id> <topic> <title> <filename> <absolute_output_dir>
 """
 
 import sys
 import os
 import json
+import traceback
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 
 def run_generate_idea(keyword: str):
@@ -45,13 +46,10 @@ def run_generate_idea(keyword: str):
     sys.stdout.write(json.dumps(result) + "\n")
 
 
-def run_generate_book(job_id: str, topic: str, title: str, filename: str):
-    from book_creation import BookGenerator, EPUBConverter
+def run_generate_book(job_id: str, topic: str, title: str, filename: str, output_dir: str):
     import io
 
-    output_dir = os.path.join(os.getcwd(), "output", job_id)
     os.makedirs(output_dir, exist_ok=True)
-
     status_file = os.path.join(output_dir, "status.json")
 
     def update_status(status: str, progress: str = "", current_chapter: str = "",
@@ -70,15 +68,24 @@ def run_generate_book(job_id: str, topic: str, title: str, filename: str):
         with open(status_file, 'w') as f:
             json.dump(data, f)
 
-    update_status("running", "Starting book generation...")
+    # Write initial running status immediately — before any imports that might be slow
+    update_status("running", "Loading generation engine...")
 
     try:
+        import contextlib as _ctx
+        import io as _io
+
+        # Suppress all verbose print/logging output from book_creation
+        # (it prints entire chapter content to stdout which is piped to log file anyway)
+        with _ctx.redirect_stdout(_io.StringIO()), _ctx.redirect_stderr(_io.StringIO()):
+            from book_creation import BookGenerator, EPUBConverter
+
+        update_status("running", "Generating book structure...", total_chapters=10)
+
         generator = BookGenerator(topic=topic, output_filename=filename)
         generator.book_title = title
         generator.save_dir = output_dir
         generator.base_save_dir = output_dir
-
-        update_status("running", "Generating book structure...", total_chapters=10)
 
         structure_json = generator.retry_with_backoff(
             generator.generate_book_structure,
@@ -120,11 +127,10 @@ def run_generate_book(job_id: str, topic: str, title: str, filename: str):
 
         update_status("completed", "Book generation complete!", total_chapters=total,
                       completed_chapters=total, available_formats=available)
-        print(json.dumps({"success": True, "availableFormats": available}))
 
     except Exception as e:
-        update_status("failed", error=str(e))
-        print(json.dumps({"error": str(e)}))
+        tb = traceback.format_exc()
+        update_status("failed", error=f"{str(e)}\n\n{tb}")
         sys.exit(1)
 
 
@@ -135,11 +141,15 @@ if __name__ == "__main__":
         keyword = sys.argv[2] if len(sys.argv) > 2 else ""
         run_generate_idea(keyword)
     elif command == "generate-book":
+        if len(sys.argv) < 7:
+            print(json.dumps({"error": "generate-book requires: job_id topic title filename output_dir"}))
+            sys.exit(1)
         job_id = sys.argv[2]
         topic = sys.argv[3]
         title = sys.argv[4]
         filename = sys.argv[5]
-        run_generate_book(job_id, topic, title, filename)
+        output_dir = sys.argv[6]
+        run_generate_book(job_id, topic, title, filename, output_dir)
     else:
         print(json.dumps({"error": f"Unknown command: {command}"}))
         sys.exit(1)
