@@ -18,6 +18,7 @@ function runPython(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     const proc = spawn("python3", [PYTHON_SCRIPT, ...args], {
       env: { ...process.env },
+      cwd: API_SERVER_ROOT,
     });
 
     let stdout = "";
