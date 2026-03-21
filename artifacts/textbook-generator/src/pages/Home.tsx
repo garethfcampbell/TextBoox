@@ -86,7 +86,7 @@ export default function Home() {
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-background shadow-lg shadow-primary/20 group-hover:bg-accent transition-colors">
             <BookOpen className="w-5 h-5" />
           </div>
-          <span className="font-display font-semibold text-2xl tracking-tight text-primary">Folio.</span>
+          <span className="font-display font-semibold text-2xl tracking-tight text-primary">TextBoox</span>
         </div>
       </header>
 
