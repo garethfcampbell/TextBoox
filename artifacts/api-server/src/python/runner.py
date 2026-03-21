@@ -287,9 +287,32 @@ p  { margin: 0.7em 0; text-align: justify; }
             print(f"EPUB generation failed (non-fatal): {epub_err}")
             epub_path = None
 
+        # ── Phase 4: PDF export ───────────────────────────────────────────────
+        update_status("running", "Building PDF...",
+                      total_chapters=total, completed_chapters=total)
+
+        pdf_path = os.path.join(output_dir, f"{base_name}.pdf")
+        try:
+            from xhtml2pdf import pisa
+
+            # xhtml2pdf works best with simpler CSS — strip unsupported properties
+            pdf_html = html.replace("text-align: justify;", "")
+
+            with open(pdf_path, "wb") as pdf_file:
+                result = pisa.CreatePDF(pdf_html, dest=pdf_file)
+
+            if result.err:
+                print(f"PDF conversion errors: {result.err}")
+                pdf_path = None
+        except Exception as pdf_err:
+            print(f"PDF generation failed (non-fatal): {pdf_err}")
+            pdf_path = None
+
         available = ["html"]
         if epub_path and os.path.exists(epub_path):
             available.append("epub")
+        if pdf_path and os.path.exists(pdf_path):
+            available.append("pdf")
 
         update_status("completed", "Book generation complete!",
                       total_chapters=total, completed_chapters=total,
