@@ -480,6 +480,16 @@ li p {{
   text-transform: none;
   page-break-before: avoid;
 }}
+.box ul {{
+  margin: 0;
+  padding-left: 8mm;
+}}
+.box li {{
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 1mm 0;
+}}
 blockquote {{
   margin: 5mm 10mm;
   padding-left: 5mm;
