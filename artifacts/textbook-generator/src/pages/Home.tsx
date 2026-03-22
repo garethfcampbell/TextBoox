@@ -130,7 +130,7 @@ function HomeContent() {
                   type="text" 
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="e.g. Asset Pricing, Quantum Computing..."
+                  placeholder="e.g. Asset Pricing, Corporate Finance..."
                   className="w-full text-lg md:text-xl px-8 py-6 bg-white/90 backdrop-blur-md border border-border/80 rounded-2xl shadow-xl shadow-black/5 focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all font-sans"
                   autoFocus
                 />
@@ -153,6 +153,7 @@ function HomeContent() {
                   'Banking',
                   'Currencies',
                   'Financial Risk Management',
+                  'Financial History',
                 ].map((example) => (
                   <button
                     key={example}
