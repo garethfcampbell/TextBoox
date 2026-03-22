@@ -254,7 +254,7 @@ function HomeContent() {
 
           {/* STEP 3: REVIEW IDEA */}
           {step === 'review' && idea && (
-            <motion.div key="review" {...fadeVariants} className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center -mt-20">
+            <motion.div key="review" {...fadeVariants} className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[3fr_7fr] gap-16 items-center -mt-20">
               <div className="order-2 md:order-1 flex justify-center w-full perspective-1000">
                 <BookCover title={idea.title} topic={idea.topic} />
               </div>
@@ -300,7 +300,7 @@ function HomeContent() {
 
           {/* STEP 5: DONE */}
           {step === 'done' && idea && jobStatus.data && (
-            <motion.div key="done" {...fadeVariants} className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <motion.div key="done" {...fadeVariants} className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[3fr_7fr] gap-16 items-center">
               <div className="flex justify-center w-full">
                 <BookCover title={idea.title} topic={idea.topic} />
               </div>
