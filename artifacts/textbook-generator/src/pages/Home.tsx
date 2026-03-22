@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Sparkles, ArrowRight, Download, CheckCircle, Loader2, X } from 'lucide-react';
 import { useTextbookIdea, useTextbookGenerator, useTextbookJob } from '@/hooks/use-textbook';
@@ -23,6 +23,23 @@ function HomeContent() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { toast } = useToast();
+
+  const ALL_EXAMPLES = [
+    'Asset Pricing',
+    'Corporate Finance',
+    'Behavioural Finance',
+    'Portfolio Management',
+    'AI & Finance',
+    'Banking',
+    'Currencies',
+    'Financial Risk Management',
+    'Financial History',
+  ];
+
+  const suggestedExamples = useMemo(() => {
+    const shuffled = [...ALL_EXAMPLES].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 6);
+  }, []);
 
   const generateIdea = useTextbookIdea();
   const generateBook = useTextbookGenerator();
@@ -207,17 +224,7 @@ function HomeContent() {
               </form>
 
               <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
-                {[
-                  'Asset Pricing',
-                  'Corporate Finance',
-                  'Behavioural Finance',
-                  'Portfolio Management',
-                  'AI & Finance',
-                  'Banking',
-                  'Currencies',
-                  'Financial Risk Management',
-                  'Financial History',
-                ].map((example) => (
+                {suggestedExamples.map((example) => (
                   <button
                     key={example}
                     type="button"
