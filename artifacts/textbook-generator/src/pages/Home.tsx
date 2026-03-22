@@ -123,6 +123,26 @@ function HomeContent() {
             <div className="flex-1 overflow-y-auto p-5">
               <BookLibrary />
             </div>
+            <div className="p-5 border-t border-border">
+              <p className="text-xs text-muted-foreground text-center">
+                Inspired by{' '}
+                <a
+                  href="https://github.com/ragibcs/groq-book-new?tab=readme-ov-file"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-primary transition-colors"
+                >
+                  Groqbook
+                </a>
+                {' · '}
+                <a
+                  href="?admin"
+                  className="underline underline-offset-2 hover:text-primary transition-colors"
+                >
+                  Admin
+                </a>
+              </p>
+            </div>
           </motion.aside>
         )}
       </AnimatePresence>
@@ -326,26 +346,6 @@ function HomeContent() {
         </AnimatePresence>
       </main>
 
-      {step === 'input' && <footer className="relative z-10 text-center py-4">
-        <p className="text-xs text-muted-foreground">
-          Inspired by{' '}
-          <a
-            href="https://github.com/ragibcs/groq-book-new?tab=readme-ov-file"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-primary transition-colors"
-          >
-            Groqbook
-          </a>
-          {' · '}
-          <a
-            href="?admin"
-            className="underline underline-offset-2 hover:text-primary transition-colors"
-          >
-            Admin
-          </a>
-        </p>
-      </footer>}
     </div>
   );
 }
