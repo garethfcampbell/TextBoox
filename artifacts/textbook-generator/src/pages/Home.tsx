@@ -252,6 +252,20 @@ export default function Home() {
 
         </AnimatePresence>
       </main>
+
+      <footer className="text-center py-4">
+        <p className="text-xs text-muted-foreground">
+          Inspired by{' '}
+          <a
+            href="https://github.com/ragibcs/groq-book-new?tab=readme-ov-file"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-primary transition-colors"
+          >
+            Groqbook
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
