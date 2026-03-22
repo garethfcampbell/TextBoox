@@ -107,7 +107,7 @@ function HomeContent() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background/90" />
       </div>
 
-      <main className="relative z-10 flex-1 flex items-center justify-center p-6 mt-16 pb-24">
+      <main className="relative z-10 flex-1 flex items-center justify-center p-6 mt-28 pb-24">
         <AnimatePresence mode="wait">
           
           {/* STEP 1: INPUT */}
