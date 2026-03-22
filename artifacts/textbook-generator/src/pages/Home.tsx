@@ -166,10 +166,10 @@ function HomeContent() {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="absolute top-0 w-full p-6 z-50 flex justify-between items-center">
+      <header className="absolute top-0 w-full p-6 z-50 flex justify-between items-center" onClick={() => setSidebarOpen(false)}>
         <div 
           className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => setSidebarOpen(o => !o)}
+          onClick={(e) => { e.stopPropagation(); setSidebarOpen(o => !o); }}
         >
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-background shadow-lg shadow-primary/20 group-hover:bg-accent transition-colors">
             <BookOpen className="w-5 h-5" />
