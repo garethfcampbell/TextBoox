@@ -148,9 +148,11 @@ function HomeContent() {
                   'Asset Pricing',
                   'Corporate Finance',
                   'Behavioural Finance',
-                  'Derivatives & Options',
                   'Portfolio Management',
-                  'Financial Econometrics',
+                  'AI & Finance',
+                  'Banking',
+                  'Currencies',
+                  'Financial Risk Management',
                 ].map((example) => (
                   <button
                     key={example}
