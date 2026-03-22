@@ -366,7 +366,9 @@ li { margin: 3px 0; }
 
             book.toc = toc_entries
             book.add_item(epub.EpubNcx())
-            book.add_item(epub.EpubNav())
+            nav = epub.EpubNav()
+            nav.add_item(css)
+            book.add_item(nav)
             book.spine = spine
 
             epub.write_epub(epub_path, book)
