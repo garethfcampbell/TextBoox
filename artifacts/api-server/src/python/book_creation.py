@@ -917,13 +917,21 @@ CONTENT OF ALL PREVIOUS CHAPTERS:
     }}
 
     .box {{
-      padding: 0;
-      margin: 0 0;
+      background-color: #f4f6f9;
+      padding: 4mm 6mm;
+      margin: 6mm 0;
+      border-left: 3pt solid #34495e;
+      break-inside: avoid;
     }}
 
     .box h3 {{
       margin-top: 0;
-      margin-bottom: 0;
+      margin-bottom: 2mm;
+      color: #34495e;
+    }}
+
+    .box li {{
+      font-style: italic;
     }}
 
     .title-page {{
@@ -973,26 +981,13 @@ CONTENT OF ALL PREVIOUS CHAPTERS:
 
         # Generate PDF filename
         pdf_filepath = full_path.replace('.html', '.pdf')
-        print(f"\n📄 Converting to PDF... Output path: {pdf_filepath}")
+        print(f"\n📄 Converting to PDF with WeasyPrint... Output path: {pdf_filepath}")
 
-        # Generate PDF using xhtml2pdf
-        print(f"\n📄 Converting to PDF with xhtml2pdf... Output path: {pdf_filepath}")
-        
         try:
-            from xhtml2pdf import pisa  # lazy import — avoids slow font-cache build at startup
-            # For xhtml2pdf, we need to open the file in binary write mode
-            with open(pdf_filepath, "wb") as pdf_file:
-                # Create the PDF
-                pisa_status = pisa.CreatePDF(
-                    styled_html,                # the HTML to convert
-                    dest=pdf_file               # file handle to receive result
-                )
-            
-            if pisa_status.err:
-                print(f"❌ Error generating PDF: {pisa_status.err}")
-            else:
-                print(f"✅ PDF file saved successfully to: {pdf_filepath}")
-                
+            from weasyprint import HTML
+            HTML(string=styled_html).write_pdf(pdf_filepath)
+            print(f"✅ PDF file saved successfully to: {pdf_filepath}")
+
         except Exception as pdf_error:
             print(f"❌ Error generating PDF: {str(pdf_error)}")
 
