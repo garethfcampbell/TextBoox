@@ -170,7 +170,7 @@ function HomeContent() {
 
           {/* STEP 2: GENERATING IDEA (LOADING) */}
           {step === 'generating-idea' && (
-            <motion.div key="generating-idea" {...fadeVariants} className="flex flex-col items-center text-center">
+            <motion.div key="generating-idea" {...fadeVariants} className="flex flex-col items-center text-center -mt-20">
               <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
                 <div className="absolute inset-0 border-4 border-secondary rounded-full" />
                 <div className="absolute inset-0 border-4 border-accent rounded-full border-t-transparent animate-spin" />
@@ -183,7 +183,7 @@ function HomeContent() {
 
           {/* STEP 3: REVIEW IDEA */}
           {step === 'review' && idea && (
-            <motion.div key="review" {...fadeVariants} className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <motion.div key="review" {...fadeVariants} className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center -mt-20">
               <div className="order-2 md:order-1 flex justify-center w-full perspective-1000">
                 <BookCover title={idea.title} topic={idea.topic} />
               </div>
