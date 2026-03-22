@@ -1,5 +1,5 @@
 google-genai>=1.68.0
 beautifulsoup4>=4.14.3
 ebooklib>=0.20
-weasyprint>=61.0
+weasyprint>=68.0
 python-dotenv>=1.2.2
