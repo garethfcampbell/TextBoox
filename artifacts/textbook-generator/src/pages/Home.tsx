@@ -142,6 +142,26 @@ function HomeContent() {
                   <ArrowRight className="w-6 h-6" />
                 </button>
               </form>
+
+              <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
+                {[
+                  'Behavioural Economics',
+                  'Machine Learning',
+                  'Constitutional Law',
+                  'Organic Chemistry',
+                  'Game Theory',
+                  'Neuroscience',
+                ].map((example) => (
+                  <button
+                    key={example}
+                    type="button"
+                    onClick={() => setKeyword(example)}
+                    className="px-4 py-1.5 rounded-full border border-border/70 bg-white/70 backdrop-blur-sm text-sm text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-white transition-all"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
             </motion.div>
           )}
 
