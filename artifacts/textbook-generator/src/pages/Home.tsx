@@ -145,12 +145,12 @@ function HomeContent() {
 
               <div className="flex flex-wrap justify-center gap-2 max-w-xl mx-auto">
                 {[
-                  'Behavioural Economics',
-                  'Machine Learning',
-                  'Constitutional Law',
-                  'Organic Chemistry',
-                  'Game Theory',
-                  'Neuroscience',
+                  'Asset Pricing',
+                  'Corporate Finance',
+                  'Behavioural Finance',
+                  'Derivatives & Options',
+                  'Portfolio Management',
+                  'Financial Econometrics',
                 ].map((example) => (
                   <button
                     key={example}
