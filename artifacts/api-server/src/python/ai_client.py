@@ -84,6 +84,16 @@ def _openai(prompt: str, json_mode: bool, temperature: float | None) -> str:
     return resp.choices[0].message.content
 
 
+def generate_content(
+    prompt: str,
+    json_mode: bool = False,
+    temperature: float | None = None,
+    use_thinking: bool = False,
+) -> str:
+    """Alias for generate_text — matches the task spec interface name."""
+    return generate_text(prompt, json_mode=json_mode, temperature=temperature, use_thinking=use_thinking)
+
+
 def generate_text(
     prompt: str,
     json_mode: bool = False,

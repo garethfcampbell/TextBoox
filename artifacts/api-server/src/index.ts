@@ -15,6 +15,13 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
+if (!process.env["OPENAI_API_KEY"]) {
+  logger.warn(
+    "OPENAI_API_KEY is not set — OpenAI gpt-4.1-nano fallback will be unavailable. " +
+    "Add this secret so book generation can fall back when Gemini is rate-limited.",
+  );
+}
+
 app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
