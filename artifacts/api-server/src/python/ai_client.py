@@ -10,8 +10,8 @@ Usage:
 """
 
 import os
-import time
 import sys
+import time
 
 
 GEMINI_MODEL = "gemini-3-flash-preview"
@@ -21,6 +21,7 @@ BACKOFF_SECONDS = [2, 4, 8]
 
 
 def _is_rate_limit_error(exc: Exception) -> bool:
+    """Return True only for transient capacity / rate-limit errors worth retrying."""
     msg = str(exc).lower()
     return any(k in msg for k in (
         "429",
@@ -59,9 +60,15 @@ def _gemini(prompt: str, json_mode: bool, temperature: float | None, use_thinkin
 
 
 def _openai(prompt: str, json_mode: bool, temperature: float | None) -> str:
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    if not api_key:
+        raise RuntimeError(
+            "OPENAI_API_KEY is not set. Cannot use OpenAI fallback. "
+            "Please add the OPENAI_API_KEY environment variable."
+        )
+
     from openai import OpenAI
 
-    api_key = os.environ.get("OPENAI_API_KEY", "")
     client = OpenAI(api_key=api_key)
 
     kwargs: dict = {
@@ -85,11 +92,14 @@ def generate_text(
 ) -> str:
     """
     Generate text using Gemini with exponential backoff retries.
-    Falls back to OpenAI gpt-4.1-nano if Gemini fails after all retries.
 
-    Raises RuntimeError if both providers fail.
+    - Rate-limit / overload errors are retried up to MAX_RETRIES times,
+      then fall back to OpenAI gpt-4.1-nano.
+    - Non-rate-limit Gemini errors (auth failures, invalid requests, etc.)
+      are re-raised immediately without retrying or falling back.
+    - Raises RuntimeError if both providers fail.
     """
-    last_exc: Exception | None = None
+    rate_limit_exc: Exception | None = None
 
     for attempt in range(MAX_RETRIES):
         try:
@@ -103,20 +113,24 @@ def generate_text(
                     file=sys.stderr,
                 )
                 time.sleep(wait)
-                last_exc = exc
+                rate_limit_exc = exc
             else:
+                # Non-transient error — re-raise immediately, no fallback
                 print(f"[ai_client] Gemini non-retryable error: {exc}", file=sys.stderr)
-                last_exc = exc
-                break
+                raise
 
+    # All retries exhausted due to rate limiting — try OpenAI fallback
     print(
-        f"[ai_client] Gemini failed after {MAX_RETRIES} attempts, falling back to OpenAI {OPENAI_MODEL}",
+        f"[ai_client] Gemini exhausted after {MAX_RETRIES} rate-limited attempts, "
+        f"falling back to OpenAI {OPENAI_MODEL}",
         file=sys.stderr,
     )
 
     try:
         return _openai(prompt, json_mode, temperature)
-    except Exception as exc:
+    except Exception as openai_exc:
         raise RuntimeError(
-            f"Both Gemini and OpenAI failed.\nGemini: {last_exc}\nOpenAI: {exc}"
-        ) from exc
+            f"Both Gemini and OpenAI failed.\n"
+            f"Gemini: {rate_limit_exc}\n"
+            f"OpenAI: {openai_exc}"
+        ) from openai_exc
