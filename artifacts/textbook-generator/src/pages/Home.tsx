@@ -146,12 +146,12 @@ function HomeContent() {
               <p className="text-xs text-muted-foreground text-center">
                 Inspired by{' '}
                 <a
-                  href="https://github.com/ragibcs/groq-book-new?tab=readme-ov-file"
+                  href="https://github.com/Bklieger/infinite-bookshelf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-2 hover:text-primary transition-colors"
                 >
-                  Groqbook
+                  Infinite Bookshelf
                 </a>
                 {' · '}
                 <a

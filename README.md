@@ -128,4 +128,4 @@ When a user provides their email before starting generation, Resend sends them a
 
 ## Inspired by
 
-[Groqbook](https://github.com/bklieger-groq/groqbook) by Benjamin Klieger
+[Infinite Bookshelf](https://github.com/Bklieger/infinite-bookshelf) by Benjamin Klieger
