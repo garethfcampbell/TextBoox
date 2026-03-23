@@ -15,7 +15,7 @@ import time
 
 
 GEMINI_MODEL = "gemini-3-flash-preview"
-OPENAI_MODEL = "gpt-4.1-nano"
+OPENAI_MODEL = "gpt-5-nano"
 MAX_RETRIES = 3
 BACKOFF_SECONDS = [2, 4, 8]
 
