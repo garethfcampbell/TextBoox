@@ -21,6 +21,7 @@ function HomeContent() {
   const [keyword, setKeyword] = useState('');
   const [idea, setIdea] = useState<BookIdea | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { toast } = useToast();
 
@@ -68,7 +69,7 @@ function HomeContent() {
     if (!idea) return;
     setStep('generating-book');
     try {
-      const result = await generateBook.mutateAsync({ data: idea });
+      const result = await generateBook.mutateAsync({ data: { ...idea, email: email.trim() || undefined } });
       setJobId(result.jobId);
     } catch (error: any) {
       toast({
@@ -272,20 +273,34 @@ function HomeContent() {
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                   <button 
-                     onClick={handleGenerateBook} 
-                     className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium shadow-xl shadow-primary/20 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-primary/30 active:translate-y-0 transition-all flex items-center justify-center gap-3 text-lg"
-                   >
-                     Draft Full Textbook
-                     <ArrowRight className="w-5 h-5" />
-                   </button>
-                   <button 
-                     onClick={resetFlow} 
-                     className="px-8 py-4 bg-transparent text-primary border-2 border-border/80 rounded-full font-medium hover:bg-secondary/50 hover:border-primary/20 transition-all flex items-center justify-center text-lg"
-                   >
-                     Start Over
-                   </button>
+                <div className="space-y-4 pt-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                      Email me when it's done <span className="font-normal normal-case tracking-normal">(optional)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full px-4 py-3 bg-white/90 border border-border/80 rounded-xl text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
+                    />
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button 
+                      onClick={handleGenerateBook} 
+                      className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium shadow-xl shadow-primary/20 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-primary/30 active:translate-y-0 transition-all flex items-center justify-center gap-3 text-lg"
+                    >
+                      Draft Full Textbook
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={resetFlow} 
+                      className="px-8 py-4 bg-transparent text-primary border-2 border-border/80 rounded-full font-medium hover:bg-secondary/50 hover:border-primary/20 transition-all flex items-center justify-center text-lg"
+                    >
+                      Start Over
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>

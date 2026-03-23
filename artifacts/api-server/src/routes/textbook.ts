@@ -5,8 +5,45 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { db, booksTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { Resend } from "resend";
 
 const router: IRouter = Router();
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+async function sendCompletionEmail(
+  email: string,
+  title: string,
+  jobId: string,
+  formats: string[],
+): Promise<void> {
+  const baseUrl = process.env.REPLIT_DOMAINS
+    ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}`
+    : "https://textboox.org";
+
+  const links = formats
+    .map(
+      (fmt) =>
+        `<a href="${baseUrl}/api/textbook/download/${jobId}/${fmt}" style="display:inline-block;margin:4px 8px 4px 0;padding:8px 20px;background:#1a1a2e;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">${fmt}</a>`,
+    )
+    .join("");
+
+  await resend.emails.send({
+    from: "Textboox <notifications@textboox.org>",
+    to: email,
+    subject: `Your textbook is ready: ${title}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;padding:40px 24px;color:#1a1a1a">
+        <h1 style="font-size:28px;font-weight:700;margin-bottom:8px;color:#1a1a2e">${title}</h1>
+        <p style="font-size:16px;color:#555;margin-bottom:32px">Your textbook has been generated and is ready to download.</p>
+        <div style="margin-bottom:32px">${links}</div>
+        <p style="font-size:13px;color:#999">These links are hosted on Textboox and will remain available for download.</p>
+        <hr style="border:none;border-top:1px solid #eee;margin:32px 0"/>
+        <p style="font-size:12px;color:#bbb">Textboox.org</p>
+      </div>
+    `,
+  });
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const API_SERVER_ROOT = path.resolve(__dirname, "..");
@@ -160,7 +197,7 @@ router.post("/textbook/generate-idea", async (req: Request, res: Response) => {
 // ── Generate book ─────────────────────────────────────────────────────────────
 
 router.post("/textbook/generate-book", async (req: Request, res: Response) => {
-  const { topic, title, filename } = req.body;
+  const { topic, title, filename, email } = req.body;
 
   if (!topic || !title || !filename) {
     res.status(400).json({ error: "topic, title, and filename are required" });
@@ -177,6 +214,8 @@ router.post("/textbook/generate-book", async (req: Request, res: Response) => {
     JSON.stringify({
       jobId,
       topic,
+      title,
+      email: email || null,
       status: "pending",
       progress: "Queued...",
       currentChapter: "",
@@ -209,7 +248,7 @@ router.post("/textbook/generate-book", async (req: Request, res: Response) => {
 
   proc.on("error", (err) => {
     const errorStatus = {
-      jobId, topic, status: "failed", progress: "", currentChapter: "",
+      jobId, topic, title, email: email || null, status: "failed", progress: "", currentChapter: "",
       totalChapters: 0, completedChapters: 0, availableFormats: [],
       error: `Failed to spawn python3: ${err.message}`,
     };
@@ -223,11 +262,23 @@ router.post("/textbook/generate-book", async (req: Request, res: Response) => {
         const current = JSON.parse(fs.readFileSync(statusFile, "utf-8"));
         if (current.status === "running" || current.status === "pending") {
           const errorStatus = {
-            jobId, topic, status: "failed", progress: "", currentChapter: "",
+            jobId, topic, title, email: email || null, status: "failed", progress: "", currentChapter: "",
             totalChapters: 0, completedChapters: 0, availableFormats: [],
             error: `Python exited with code ${code}. Check python.log for details.`,
           };
           fs.writeFileSync(statusFile, JSON.stringify(errorStatus));
+        }
+      } catch {
+        // ignore
+      }
+    } else if (email) {
+      // Send completion email (non-blocking)
+      try {
+        const current = JSON.parse(fs.readFileSync(statusFile, "utf-8"));
+        if (current.status === "completed" && current.availableFormats?.length) {
+          sendCompletionEmail(email, title, jobId, current.availableFormats).catch((err) => {
+            console.error("Failed to send completion email:", err);
+          });
         }
       } catch {
         // ignore
