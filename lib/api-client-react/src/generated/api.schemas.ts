@@ -28,6 +28,8 @@ export interface GenerateBookRequest {
   title: string;
   /** Output filename */
   filename: string;
+  /** Optional email address to notify when generation is complete */
+  email?: string;
 }
 
 export interface GenerateBookResponse {

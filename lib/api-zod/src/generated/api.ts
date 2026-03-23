@@ -38,6 +38,10 @@ export const GenerateBookBody = zod.object({
   topic: zod.string().describe("Book topic\/description"),
   title: zod.string().describe("Book title"),
   filename: zod.string().describe("Output filename"),
+  email: zod
+    .string()
+    .optional()
+    .describe("Optional email address to notify when generation is complete"),
 });
 
 export const GenerateBookResponse = zod.object({
@@ -59,6 +63,7 @@ export const GetJobStatusResponse = zod.object({
   currentChapter: zod.string().optional(),
   totalChapters: zod.number().optional(),
   completedChapters: zod.number().optional(),
+  progressPercent: zod.number().optional(),
   availableFormats: zod.array(zod.string()).optional(),
   error: zod.string().optional(),
 });

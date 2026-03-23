@@ -175,6 +175,9 @@ components:
         filename:
           type: string
           description: Output filename
+        email:
+          type: string
+          description: Optional email address to notify when generation is complete
       required:
         - topic
         - title
