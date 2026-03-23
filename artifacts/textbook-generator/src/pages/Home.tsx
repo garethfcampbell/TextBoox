@@ -311,7 +311,7 @@ function HomeContent() {
                        Ready for Publication
                     </div>
                     <h1 className="font-display text-4xl sm:text-5xl font-bold text-primary mb-6 leading-tight">
-                      Your manuscript is complete.
+                      Your textbook is complete.
                     </h1>
                     <p className="text-muted-foreground text-lg leading-relaxed">
                       We've meticulously structured and written your textbook. It has been formatted and is now available for download.
