@@ -74,20 +74,12 @@ def run_generate_book(job_id: str, topic: str, title: str, filename: str, output
     update_status("running", "Textbook Creation in Progress (will take a few minutes)", progress_percent=5)
 
     try:
-        from google import genai
-        from google.genai import types as genai_types
-
-        api_key = os.environ.get("GOOGLE_API_KEY", "")
-        client = genai.Client(api_key=api_key, http_options={"api_version": "v1alpha"})
+        from ai_client import generate_text
 
         # ── Phase 1: generate chapter structure ──────────────────────────────────
-        # Matches book_creation.py format: nested dict {chapter: {section: desc}}
         update_status("running", "Generating chapter structure...", total_chapters=10, progress_percent=10)
 
-        resp = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=f"""
-TASK
+        structure_prompt = f"""TASK
 You are structuring an academic textbook.
 
 OUTPUT FORMAT
@@ -113,15 +105,9 @@ Write a comprehensive structure in JSON format for a book titled "{title}" about
 
 {topic}
 
-Include 10 chapters, each with 5 sections. Chapter titles must be descriptive and thematic — do NOT use "Chapter 1", "Chapter 2" etc. The final chapter should be a concluding discussion about the key aspects covered in the book.
-""",
-            config=genai_types.GenerateContentConfig(
-                thinking_config=genai_types.ThinkingConfig(thinking_level="high"),
-                response_mime_type="application/json"
-            )
-        )
+Include 10 chapters, each with 5 sections. Chapter titles must be descriptive and thematic — do NOT use "Chapter 1", "Chapter 2" etc. The final chapter should be a concluding discussion about the key aspects covered in the book."""
 
-        raw = resp.text.strip()
+        raw = generate_text(structure_prompt, json_mode=True, use_thinking=True).strip()
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
 
@@ -224,13 +210,7 @@ Each section must end with a summary box:
 </div>
 """
 
-            ch_resp = client.models.generate_content(
-                model="gemini-3-flash-preview",
-                contents=chapter_prompt,
-                config=genai_types.GenerateContentConfig(temperature=0.8)
-            )
-
-            content = ch_resp.text.strip()
+            content = generate_text(chapter_prompt, temperature=0.8).strip()
             # Strip any accidental markdown fences
             if content.startswith("```"):
                 content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
