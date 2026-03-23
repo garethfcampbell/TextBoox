@@ -68,7 +68,7 @@ textboox/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-username/textboox.git
+git clone https://github.com/garethfcampbell/textboox.git
 cd textboox
 pnpm install
 pip install -r requirements.txt
