@@ -1,0 +1,228 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Textbook Generator API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: textbook
+    description: Textbook generation operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /textbook/generate-idea:
+    post:
+      operationId: generateIdea
+      tags: [textbook]
+      summary: Generate book idea from keyword
+      description: Uses AI to generate a book concept from a keyword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateIdeaRequest"
+      responses:
+        "200":
+          description: Book idea generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookIdea"
+        "500":
+          description: Error generating idea
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /textbook/generate-book:
+    post:
+      operationId: generateBook
+      tags: [textbook]
+      summary: Generate full textbook
+      description: Generates a full textbook and returns a job ID for status tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateBookRequest"
+      responses:
+        "200":
+          description: Book generation started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateBookResponse"
+        "500":
+          description: Error generating book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /textbook/job/{jobId}:
+    get:
+      operationId: getJobStatus
+      tags: [textbook]
+      summary: Get book generation job status
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStatus"
+        "404":
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /textbook/download/{jobId}/{format}:
+    get:
+      operationId: downloadBook
+      tags: [textbook]
+      summary: Download generated book
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [epub, pdf, html]
+      responses:
+        "200":
+          description: Book file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    GenerateIdeaRequest:
+      type: object
+      properties:
+        keyword:
+          type: string
+          description: Topic keyword for the book
+      required:
+        - keyword
+    BookIdea:
+      type: object
+      properties:
+        topic:
+          type: string
+        description:
+          type: string
+        title:
+          type: string
+        filename:
+          type: string
+      required:
+        - topic
+        - description
+        - title
+        - filename
+    GenerateBookRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+          description: Book topic/description
+        title:
+          type: string
+          description: Book title
+        filename:
+          type: string
+          description: Output filename
+        email:
+          type: string
+          description: Optional email address to notify when generation is complete
+      required:
+        - topic
+        - title
+        - filename
+    GenerateBookResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+        message:
+          type: string
+      required:
+        - jobId
+        - message
+    JobStatus:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        progress:
+          type: string
+        currentChapter:
+          type: string
+        totalChapters:
+          type: number
+        completedChapters:
+          type: number
+        progressPercent:
+          type: number
+        availableFormats:
+          type: array
+          items:
+            type: string
+        error:
+          type: string
+      required:
+        - jobId
+        - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

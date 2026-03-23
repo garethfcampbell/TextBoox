@@ -1,0 +1,6 @@
+output/
+
+# Environment / secrets — never commit these
+.env
+.env.*
+.env.local

@@ -1,0 +1,11 @@
+packages:
+  "framer-motion": "Smooth page transitions and micro-interactions for step-by-step generation flow"
+
+images:
+  - path: "artifacts/textbook-generator/public/images/paper-bg.png"
+    description: "A highly subtle, elegant, off-white and ivory paper texture background with very faint geometric lines and a soft, professional academic feel. Clean, minimal, light."
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated API hooks from @workspace/api-client-react for TanStack Query integration.
+  - Job status polling uses standard TanStack Query refetchInterval.
