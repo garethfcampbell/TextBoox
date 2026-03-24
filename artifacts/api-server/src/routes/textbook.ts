@@ -860,4 +860,52 @@ router.patch("/textbook/admin/books/:id/approve", adminLimiter, requireAdminAuth
   }
 });
 
+// Admin download — bypasses approval check so admins can preview before approving
+router.get("/textbook/admin/books/:id/download/:format", adminLimiter, requireAdminAuth, async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id, 10);
+  const { format } = req.params;
+
+  if (!["epub", "pdf", "html"].includes(format)) {
+    res.status(400).json({ error: "Invalid format" });
+    return;
+  }
+
+  try {
+    const [book] = await db
+      .select()
+      .from(booksTable)
+      .where(eq(booksTable.id, id));
+
+    if (!book) {
+      res.status(404).json({ error: "Book not found" });
+      return;
+    }
+
+    const contentTypes: Record<string, string> = {
+      epub: "application/epub+zip",
+      pdf: "application/pdf",
+      html: "text/html",
+    };
+
+    const safeLibTitle = safeContentDispositionName(book.title ?? "textbook");
+    res.setHeader("Content-Type", contentTypes[format]);
+    res.setHeader("Content-Disposition", `attachment; filename="${safeLibTitle}.${format}"`);
+
+    if (format === "html") {
+      res.setHeader("Content-Security-Policy", "sandbox");
+      res.send(book.htmlData ?? "");
+    } else {
+      const field = format === "pdf" ? book.pdfData : book.epubData;
+      if (!field) {
+        res.status(404).json({ error: `${format} not available` });
+        return;
+      }
+      res.send(Buffer.from(field, "base64"));
+    }
+  } catch (err) {
+    logger.error({ err }, "Failed to serve admin download");
+    res.status(500).json({ error: "Failed to serve file" });
+  }
+});
+
 export default router;

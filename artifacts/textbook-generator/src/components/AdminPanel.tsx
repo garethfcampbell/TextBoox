@@ -101,6 +101,29 @@ export function AdminPanel() {
     }
   };
 
+  const handleAdminDownload = async (bookId: number, title: string, fmt: string) => {
+    if (!password) return;
+    try {
+      const res = await fetch(`/api/textbook/admin/books/${bookId}/download/${fmt}`, {
+        headers: { 'x-admin-password': password },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert((err as { error?: string }).error ?? 'Download failed');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title}.${fmt}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('Download failed');
+    }
+  };
+
   const handleLogout = () => {
     sessionStorage.removeItem(SESSION_KEY);
     setPassword(null);
@@ -229,15 +252,14 @@ export function AdminPanel() {
 
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
                     {FORMATS.map((fmt) => (
-                      <a
+                      <button
                         key={fmt}
-                        href={`/api/textbook/library/${book.id}/download/${fmt}`}
-                        download
+                        onClick={() => handleAdminDownload(book.id, book.title, fmt)}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary text-primary text-xs font-semibold uppercase tracking-wider hover:bg-accent/10 hover:text-accent transition-colors"
                       >
                         <Download className="w-3 h-3" />
                         {fmt}
-                      </a>
+                      </button>
                     ))}
 
                     <button
